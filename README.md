@@ -18,7 +18,7 @@ pinned: false
 
 ## About the metadata block at the top of this file
 
-The `---` block at the very top of this README is [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference) configuration, not part of the rendered page. Hugging Face reads it to set up the deployed Space:
+The `---` block at the very top of this README is [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference) configuration.z Hugging Face reads it to set up the deployed Space:
 
 - `title` and `emoji`: the name and icon shown on the Space's card.
 
@@ -36,11 +36,22 @@ On a plain GitHub clone this block is inert. It only takes effect when the repo 
 
 **How can trauma survivors, people with photosensitive epilepsy, and caregivers quickly and accurately determine whether a film contains specific content triggers, without relying on vague MPA ratings or spoiler-heavy reviews?**
 
-Current MPA ratings (G, PG, PG-13, R) are too broad for specific sensitivities. Existing tools require manual browsing through long reviews. ReelShield combines TMDB metadata with Gemini AI film knowledge to generate specific, spoiler-free content warnings with confidence scores in under 15 seconds.
 
-**Target users:** Trauma survivors, people with photosensitive epilepsy, and caregivers
+The Motion Picture Association (MPA) rating system was created in 1968. The main ratings are G (General Audiences), PG (Parental Guidance), PG-13 (Parents Strongly Cautioned), R (Restricted), and NC-17 (Adults Only). These ratings come with a brief description of a movie's contents, such as  violence, action, language, sex, nudity, drugs, and smoking. The brevity and vagueness of these ratings and descriptors is a problem, specifically for the following three groups of people:
+* Trauma survivors who need to know if a film contains specific content that may retraumatize them
+* People with photosensitive epilepsy who risk seizures with no upfront warning.
+* Parents/caregivers, who should have specific information about a movie before showing content to a child.
 
-**Measurable impact:** Cached-film lookups complete in **<1 second** (SQLite hit, measured locally and in `docs/app-analysis.md` §5); fresh Gemini-generated warnings complete in **under 2 seconds** for the films the testing participants searched. The pre-app baseline ("estimated ~5 minutes via manual cross-referencing of Common Sense Media + IMDb Parents Guide for a single trigger category") is an informal team estimate rather than a measured study. Replacing it with a controlled before/after measurement is noted in `docs/app-analysis.md` §8 as a future testing iteration.
+ReelShield combines TMDB metadata with Gemini AI film knowledge to generate specific, spoiler-free content warnings with confidence scores in under 15 seconds.
+
+Here's how it works in four steps.
+1. A user searches any movie title.
+2. Information about that film is pulled from a movie database: the plot summary, genre, official rating, and keywords. All of that gets fed into the AI.
+3. Everything is sent to Gemini, and ask it to analyze the film across 9 specific warning categories. These are things the MPA never tells you about: like whether there are flashing lights that could trigger a seizure, whether the film depicts self-harm, animal abuse, or miscarriage. Each category gets a severity level: None, Mild, Moderate, or Severe, and a confidence score so you know how certain the AI is.
+4.  The result gets saved to our database. So the next person who searches the same film gets a result in under one second.
+
+And alongside the warnings, there's a chat interface. You can ask questions in plain English, things like 'does the dog die?' or 'is there blood shown on screen?' or 'is the violence realistic or stylised?' The AI answers in context, with or without spoilers, based on what it knows about the film.
+
 
 ---
 
