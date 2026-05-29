@@ -346,6 +346,8 @@
     </p>
     <label for="promptTA" class="sr-only">AI prompt template</label>
     <textarea id="promptTA" spellcheck="false"></textarea>
+    <label for="promptToken" class="hint">Admin token (required to save or reset):</label>
+    <input id="promptToken" type="password" autocomplete="off" spellcheck="false">
     <div class="modal-actions">
       <button class="btn" onclick="savePrompt()">Save Prompt</button>
       <button class="btn btn-ghost" onclick="resetPrompt()">Reset to Default</button>

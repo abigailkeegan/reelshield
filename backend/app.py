@@ -1319,12 +1319,26 @@ def chat():
     ]
     return jsonify({"response": response})
 
+def _prompt_editing_authorized() -> bool:
+    """The prompt template is a process-global shared by every visitor, so
+    editing it is gated behind an admin token. Read at call time so the value
+    can be configured per deployment (and per test). Editing is disabled
+    unless PROMPT_ADMIN_TOKEN is set and the request presents a matching
+    X-Admin-Token header."""
+    token = os.environ.get("PROMPT_ADMIN_TOKEN", "")
+    if not token:
+        return False
+    supplied = request.headers.get("X-Admin-Token", "")
+    return secrets.compare_digest(supplied, token)
+
 @app.route("/api/prompt", methods=["GET"])
 def get_prompt():
     return jsonify({"prompt": app_state["prompt_template"]})
 
 @app.route("/api/prompt", methods=["POST"])
 def set_prompt():
+    if not _prompt_editing_authorized():
+        return jsonify({"error": "Prompt editing is restricted to administrators."}), 403
     new_prompt = request.json.get("prompt", "").strip()
     if not new_prompt:
         return jsonify({"error": "Prompt cannot be empty"}), 400
@@ -1337,6 +1351,8 @@ def set_prompt():
 
 @app.route("/api/prompt/reset", methods=["POST"])
 def reset_prompt():
+    if not _prompt_editing_authorized():
+        return jsonify({"error": "Prompt editing is restricted to administrators."}), 403
     app_state["prompt_template"] = DEFAULT_PROMPT_TEMPLATE
     return jsonify({"ok": True, "prompt": DEFAULT_PROMPT_TEMPLATE})
 

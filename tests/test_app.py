@@ -48,22 +48,53 @@ def test_get_prompt(client):
     assert '{year}' in data['prompt']
 
 
-def test_set_prompt_valid(client):
-    """Valid prompt with all required placeholders should save."""
+# Prompt editing is gated behind an admin token (PROMPT_ADMIN_TOKEN). These
+# tests configure the token and pass the matching X-Admin-Token header.
+ADMIN_TOKEN = "test-admin-token"
+ADMIN_HEADERS = {"X-Admin-Token": ADMIN_TOKEN}
+
+
+def test_set_prompt_requires_admin_token(client, monkeypatch):
+    """Without a configured/matching token, editing is forbidden (403)."""
+    monkeypatch.setenv("PROMPT_ADMIN_TOKEN", ADMIN_TOKEN)
+    good_prompt = "Analyze {title} ({year}). Rating: {rating}. Genres: {genres}. Overview: {overview}. Keywords: {keywords}. Return JSON."
+    # No header
+    res = client.post('/api/prompt', json={'prompt': good_prompt})
+    assert res.status_code == 403
+    # Wrong token
+    res = client.post('/api/prompt', json={'prompt': good_prompt},
+                      headers={"X-Admin-Token": "wrong"})
+    assert res.status_code == 403
+
+
+def test_set_prompt_disabled_when_token_unset(client, monkeypatch):
+    """When PROMPT_ADMIN_TOKEN is unset, editing is disabled even with a header."""
+    monkeypatch.delenv("PROMPT_ADMIN_TOKEN", raising=False)
+    good_prompt = "Analyze {title} ({year}). Rating: {rating}. Genres: {genres}. Overview: {overview}. Keywords: {keywords}. Return JSON."
+    res = client.post('/api/prompt', json={'prompt': good_prompt}, headers=ADMIN_HEADERS)
+    assert res.status_code == 403
+
+
+def test_set_prompt_valid(client, monkeypatch):
+    """Valid prompt with all required placeholders should save (with admin token)."""
+    monkeypatch.setenv("PROMPT_ADMIN_TOKEN", ADMIN_TOKEN)
     new_prompt = "Analyze {title} ({year}). Rating: {rating}. Genres: {genres}. Overview: {overview}. Keywords: {keywords}. Return JSON."
     res = client.post('/api/prompt',
                       json={'prompt': new_prompt},
+                      headers=ADMIN_HEADERS,
                       content_type='application/json')
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['ok'] is True
 
 
-def test_set_prompt_missing_placeholder(client):
+def test_set_prompt_missing_placeholder(client, monkeypatch):
     """Prompt missing required placeholders should return error."""
+    monkeypatch.setenv("PROMPT_ADMIN_TOKEN", ADMIN_TOKEN)
     bad_prompt = "Just tell me about the movie and return JSON."
     res = client.post('/api/prompt',
                       json={'prompt': bad_prompt},
+                      headers=ADMIN_HEADERS,
                       content_type='application/json')
     assert res.status_code == 400
     data = json.loads(res.data)
@@ -71,22 +102,25 @@ def test_set_prompt_missing_placeholder(client):
     assert 'missing' in data['error'].lower()
 
 
-def test_set_prompt_empty(client):
+def test_set_prompt_empty(client, monkeypatch):
     """Empty prompt should return error."""
+    monkeypatch.setenv("PROMPT_ADMIN_TOKEN", ADMIN_TOKEN)
     res = client.post('/api/prompt',
                       json={'prompt': ''},
+                      headers=ADMIN_HEADERS,
                       content_type='application/json')
     assert res.status_code == 400
 
 
-def test_reset_prompt(client):
-    """Reset should restore default prompt."""
+def test_reset_prompt(client, monkeypatch):
+    """Reset should restore default prompt (with admin token)."""
+    monkeypatch.setenv("PROMPT_ADMIN_TOKEN", ADMIN_TOKEN)
     # First set a custom prompt
     new_prompt = "Custom {title} {year} {rating} {genres} {overview} {keywords}"
-    client.post('/api/prompt', json={'prompt': new_prompt})
+    client.post('/api/prompt', json={'prompt': new_prompt}, headers=ADMIN_HEADERS)
 
     # Now reset
-    res = client.post('/api/prompt/reset')
+    res = client.post('/api/prompt/reset', headers=ADMIN_HEADERS)
     assert res.status_code == 200
     data = json.loads(res.data)
     assert data['ok'] is True

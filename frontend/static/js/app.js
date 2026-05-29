@@ -527,18 +527,20 @@ async function openPromptEditor() {
 function closePromptEditor() { _closeModal(document.getElementById('promptModal')); }
 async function savePrompt() {
   const prompt = document.getElementById('promptTA').value;
-  const res    = await fetch('/api/prompt', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt})});
+  const token  = document.getElementById('promptToken').value;
+  const res    = await fetch('/api/prompt', {method:'POST', headers:{'Content-Type':'application/json', 'X-Admin-Token':token}, body:JSON.stringify({prompt})});
   const data   = await res.json();
   const msg    = document.getElementById('promptMsg');
   if (data.ok) { msg.className='modal-msg ok'; msg.textContent=data.message; setTimeout(closePromptEditor, 1500); }
   else          { msg.className='modal-msg err'; msg.textContent=data.error; }
 }
 async function resetPrompt() {
-  const res  = await fetch('/api/prompt/reset', {method:'POST'});
-  const data = await res.json();
-  document.getElementById('promptTA').value = data.prompt;
-  const msg = document.getElementById('promptMsg');
-  msg.className = 'modal-msg ok'; msg.textContent = 'Reset to default prompt.';
+  const token = document.getElementById('promptToken').value;
+  const res   = await fetch('/api/prompt/reset', {method:'POST', headers:{'X-Admin-Token':token}});
+  const data  = await res.json();
+  const msg   = document.getElementById('promptMsg');
+  if (data.ok) { document.getElementById('promptTA').value = data.prompt; msg.className='modal-msg ok'; msg.textContent='Reset to default prompt.'; }
+  else          { msg.className='modal-msg err'; msg.textContent=data.error; }
 }
 document.getElementById('promptModal').addEventListener('click', e => {
   if (e.target === document.getElementById('promptModal')) closePromptEditor();

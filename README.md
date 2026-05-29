@@ -10,21 +10,37 @@ pinned: false
 # 🎬 ReelShield
 
 > AI-powered content warnings for movies, powered by Gemini + TMDB.
-> Built for viewers with trauma sensitivities, parents, and anyone who needs to know what's in a film before watching.
+> Built for trauma survivors, people with photosensitive epilepsy, and caregivers who need to know what's in a film before watching.
 
 **Live demo:** https://huggingface.co/spaces/abigailkeegan/ReelShield
-**Poster:** [docs/poster.pptx](docs/poster.pptx) · [PNG preview](docs/poster.png)
+
+---
+
+## About the metadata block at the top of this file
+
+The `---` block at the very top of this README is [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference) configuration, not part of the rendered page. Hugging Face reads it to set up the deployed Space:
+
+- `title` and `emoji`: the name and icon shown on the Space's card.
+
+- `colorFrom` and `colorTo`: the two colors of the gradient on that card (here, red to purple).
+
+- `sdk: docker`: tells Hugging Face to build the Space from the `Dockerfile` in this repo.
+
+- `pinned: false`: keeps the Space from being pinned to the owner's profile.
+
+On a plain GitHub clone this block is inert. It only takes effect when the repo is deployed as a Hugging Face Space, so you can leave it as is or delete it if you are not deploying there.
 
 ---
 
 ## Research Question
 
-**How can viewers with trauma sensitivities, epilepsy, or parental concerns quickly and accurately determine whether a film contains specific content triggers - without relying on vague MPA ratings or spoiler-heavy reviews?**
+**How can trauma survivors, people with photosensitive epilepsy, and caregivers quickly and accurately determine whether a film contains specific content triggers, without relying on vague MPA ratings or spoiler-heavy reviews?**
 
 Current MPA ratings (G, PG, PG-13, R) are too broad for specific sensitivities. Existing tools require manual browsing through long reviews. ReelShield combines TMDB metadata with Gemini AI film knowledge to generate specific, spoiler-free content warnings with confidence scores in under 15 seconds.
 
-**Target users:** Parents, trauma survivors, people with photosensitive epilepsy, neurodivergent viewers
-**Measurable impact:** Cached-film lookups complete in **<1 second** (SQLite hit, measured locally and in `docs/app-analysis.md` §5); fresh Gemini-generated warnings complete in **under 2 seconds** for the films the testing participants searched. The pre-app baseline ("estimated ~5 minutes via manual cross-referencing of Common Sense Media + IMDb Parents Guide for a single trigger category") is an informal team estimate rather than a measured study — replacing it with a controlled before/after measurement is noted in `docs/app-analysis.md` §8 as a future testing iteration.
+**Target users:** Trauma survivors, people with photosensitive epilepsy, and caregivers
+
+**Measurable impact:** Cached-film lookups complete in **<1 second** (SQLite hit, measured locally and in `docs/app-analysis.md` §5); fresh Gemini-generated warnings complete in **under 2 seconds** for the films the testing participants searched. The pre-app baseline ("estimated ~5 minutes via manual cross-referencing of Common Sense Media + IMDb Parents Guide for a single trigger category") is an informal team estimate rather than a measured study. Replacing it with a controlled before/after measurement is noted in `docs/app-analysis.md` §8 as a future testing iteration.
 
 ---
 
@@ -55,7 +71,7 @@ Browser (HTML + CSS + JS)
     TMDB API      Gemini 2.5 Flash    Classic-ML models           Pretrained DL (off-the-shelf)
     (metadata)    (warnings)          · K-Means cluster engine    · MiniLM sentence-transformer
                                         (cluster_model.pkl)         (`all-MiniLM-L6-v2`)
-                                      · MPA-rating classifier       — embeddings cached in
+                                      · MPA-rating classifier         embeddings cached in
                                         (mpa_classifier.pkl)          movie_embeddings table
          |
     SQLite
@@ -87,9 +103,7 @@ movie-warnings/
 │   ├── train_cluster_model.py          # CLI: fit K-Means, write movie_clusters table
 │   ├── mpa_classifier.py               # Logistic-regression MPA-bucket classifier
 │   ├── train_mpa_classifier.py         # CLI: train MPA classifier + report metrics
-│   ├── seed_movies.py                  # Cache-seeding helper (single-pass)
-│   ├── seed_bulk.py                    # Cache-seeding helper (bulk runner)
-│   └── seed_direct.py                  # Direct Gemini seeding + --fix-ghosts mode
+│   └── seed_movies.py                  # Cache-seeding helper (single-pass)
 ├── data-engineering/
 │   ├── README.md                       # Schema docs, data flow
 │   ├── migrations/
@@ -122,11 +136,19 @@ movie-warnings/
 
 ## Database Setup
 
-The `movie_cache.db` SQLite database is **not included in this repository** - it's gitignored to keep the repo small.
+The live `movie_cache.db` is gitignored, since it accumulates real user accounts and usage data. What ships with the repo instead is `data/movie_cache.seed.db`: a sanitized snapshot with all 421 cached films, their content warnings, MiniLM embeddings, and K-Means cluster assignments, but with every user account, review, and usage log stripped out.
 
-You don't need to do anything special before the first run: when the container starts, ReelShield will create an empty `./data/movie_cache.db` and populate it on demand the first time each movie is searched.
+You have two ways to start:
 
-If you want to pre-warm the cache so initial searches feel instant, run the seed script after the container is up:
+Start with the full cache (recommended). Copy the seed snapshot into place before the first run, so searches for the 421 included films are instant:
+
+```
+cp data/movie_cache.seed.db data/movie_cache.db
+```
+
+Start empty. Do nothing. When the container starts, ReelShield creates an empty `./data/movie_cache.db` and populates it on demand the first time each movie is searched.
+
+Either way, you can pre-warm additional films beyond the seed set by running the seed script after the container is up:
 
 ```
 docker compose exec app python backend/seed_movies.py
@@ -193,7 +215,7 @@ API routes live in `backend/app.py` (search, load_movie, chat, prompt, watchlist
 
 ### Frontend
 
-The UI is a **single Jinja-rendered page** served by Flask at `GET /`. The source lives at `frontend/templates/index.html`, with the CSS and JavaScript extracted into `frontend/static/css/main.css` and `frontend/static/js/app.js`. See [`frontend/README.md`](frontend/README.md) for the section map and accessibility contract.
+The UI is a single Jinja-rendered page served by Flask at `GET /`. The source lives at `frontend/templates/index.html`, with the CSS and JavaScript extracted into `frontend/static/css/main.css` and `frontend/static/js/app.js`. See [`frontend/README.md`](frontend/README.md) for the section map and accessibility contract.
 
 To iterate on the UI without rebuilding the Docker image, run gunicorn (or `flask --app backend.app run --debug`) on the host. Edits to the template and the static files are picked up on browser refresh.
 
@@ -220,6 +242,7 @@ Backend tests live in `tests/test_app.py` (health, search, prompt, chat, warning
 | `REELSHIELD_CACHE_REPO` | No | HF Dataset to hydrate `movie_cache.db` and the `.pkl` model artifacts from on cold start. Defaults to `abigailkeegan/reelshield-cache`. |
 | `CLUSTER_MODEL_PATH` | No | Override path for the K-Means model. Defaults to `/data/cluster_model.pkl`. |
 | `MPA_MODEL_PATH` | No | Override path for the MPA classifier. Defaults to `/data/mpa_classifier.pkl`. |
+| `PROMPT_ADMIN_TOKEN` | No | Admin token that unlocks the runtime "AI Prompt" editor. The prompt template is shared by all visitors, so editing is disabled unless this is set; when set, the editor must be given the matching token to save or reset. Leave unset to keep the prompt read-only. |
 
 ---
 
