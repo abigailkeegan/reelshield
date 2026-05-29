@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ReelShield — Mockup: Watchlist</title>
+<style>
+/* Static-HTML mockup styles for docs/wireframes/mockups/*.html.
+   Subset of frontend/static/css/main.css, kept in sync by hand so the
+   mockups can be opened standalone without running the server. */
+
+:root{
+  --bg:#0f1117;--surf:#1a1d27;--surf2:#242736;--bdr:#2e3347;
+  --text:#e8eaf0;--muted:#a8b0c8;--accent:#4860e8;--accent-d:#3850c8;
+  --mild:#4caf50;--moderate:#ff9800;--severe:#f44336;
+  --epi-bg:#1a0000;--epi-bdr:#ff2222;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px;line-height:1.6}
+.container{max-width:1200px;margin:0 auto}
+
+/* ── Mockup banner (only on mockup files) ─────────────────── */
+.mockup-banner{background:rgba(108,142,255,.12);border:1px dashed var(--accent);border-radius:8px;padding:10px 14px;margin-bottom:18px;font-size:.82rem;color:#9fb3ff}
+.mockup-banner strong{color:var(--accent)}
+.mockup-banner a{color:#9fb3ff;text-decoration:underline}
+
+/* ── Header ───────────────────────────────────────────────── */
+header{text-align:center;margin-bottom:28px;position:relative}
+header h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;letter-spacing:-.5px}
+header p{color:var(--muted);margin-top:6px}
+.header-btns{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;gap:8px;align-items:center}
+.settings-btn{background:var(--surf);border:1px solid var(--bdr);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:.85rem}
+
+/* ── Auth bar ────────────────────────────────────────────── */
+.auth-bar{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.auth-bar .auth-left{font-size:.88rem;color:var(--muted)}
+.auth-bar .auth-left strong{color:var(--text)}
+.auth-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.auth-inline input{padding:7px 11px;border:1px solid var(--bdr);border-radius:6px;background:var(--surf2);color:var(--text);font-size:.85rem;width:130px}
+
+/* ── Epilepsy banner ─────────────────────────────────────── */
+.epi-bar{background:var(--epi-bg);border:2px solid var(--epi-bdr);border-radius:10px;padding:16px 20px;margin-bottom:20px}
+.epi-bar .inner{display:flex;gap:14px;align-items:flex-start}
+.epi-bar .icon{font-size:2rem;line-height:1;flex-shrink:0}
+.epi-bar h2{color:#ff4444;font-size:1.05rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.epi-bar p{color:#ffb0b0;font-size:.92rem}
+.epi-bar .epi-notes{color:#ff8888;margin-top:4px;font-style:italic;font-size:.88rem}
+
+/* ── Search box ──────────────────────────────────────────── */
+.search-box{background:var(--surf);border-radius:12px;padding:20px;border:1px solid var(--bdr);margin-bottom:20px}
+.search-lbl{display:block;font-weight:600;margin-bottom:8px;font-size:.95rem}
+.search-row{display:flex;gap:10px;align-items:center}
+.genre-select{padding:13px 12px;border:2px solid var(--bdr);border-radius:8px;font-size:.88rem;background:var(--surf2);color:var(--text);white-space:nowrap;flex-shrink:0}
+.search-input{flex:1;padding:13px 16px;border:2px solid var(--bdr);border-radius:8px;font-size:1rem;background:var(--surf2);color:var(--text)}
+.search-status{color:var(--muted);font-size:.83rem;margin-top:7px;min-height:18px}
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-top:14px}
+.rcard{background:var(--surf2);border-radius:8px;padding:10px;border:2px solid transparent;text-align:left;color:var(--text)}
+.rcard .no-poster{width:100%;aspect-ratio:2/3;background:var(--bdr);display:flex;align-items:center;justify-content:center;border-radius:4px;color:var(--muted);font-size:.73rem}
+.rcard h3{font-size:.82rem;margin-top:8px;font-weight:600}
+.rcard small{color:var(--muted);font-size:.75rem}
+
+/* ── Main panel layout ───────────────────────────────────── */
+.main-layout{display:grid;gap:20px;margin-top:20px;grid-template-columns:1fr 1fr}
+@media(max-width:767px){.main-layout{grid-template-columns:1fr}}
+.panel{background:var(--surf);border-radius:12px;padding:24px;border:1px solid var(--bdr)}
+.panel>h2{font-size:1.15rem;font-weight:700;margin-bottom:16px}
+
+/* ── Movie meta ──────────────────────────────────────────── */
+.movie-title{font-size:1.25rem;font-weight:700;margin-bottom:8px}
+.meta-row{display:flex;gap:10px;flex-wrap:wrap;font-size:.83rem;color:var(--muted);margin-bottom:10px}
+.badge{background:var(--surf2);border:1px solid var(--bdr);padding:2px 9px;border-radius:20px;font-size:.79rem}
+.badge-mpa-warn{background:rgba(255,152,0,.2);border-color:#ffb74d;color:#ffb74d;font-weight:600}
+.mpa-warn-note{font-size:.78rem;color:#ffb74d;margin:6px 0 10px}
+.overview-blurb{font-size:.88rem;color:var(--muted);line-height:1.65;padding:12px;background:var(--surf2);border-radius:8px;border-left:3px solid var(--accent);margin-top:8px}
+
+/* ── Spoiler toggle ──────────────────────────────────────── */
+.sptoggle{display:flex;align-items:center;justify-content:space-between;background:var(--surf2);padding:12px 16px;border-radius:8px;margin-bottom:14px;border:1px solid var(--bdr)}
+.sptoggle span{font-size:.9rem}
+.sp-btn{position:relative;width:56px;height:28px;background:#4caf50;border-radius:14px;border:2px solid #4caf50;flex-shrink:0}
+.sp-btn::after{content:'';position:absolute;width:22px;height:22px;background:#fff;border-radius:50%;top:1px;left:1px;transform:translateX(28px)}
+.sp-btn.off{background:var(--bdr);border-color:var(--bdr)}
+.sp-btn.off::after{transform:translateX(0)}
+.sp-hint{font-size:.79rem;color:var(--muted);margin-bottom:14px}
+
+/* ── Warning cards ───────────────────────────────────────── */
+.witem{padding:12px 14px;margin:7px 0;border-radius:8px;border-left:4px solid;font-size:.88rem}
+.s0{background:var(--surf2);border-color:var(--muted);color:var(--muted)}
+.s1{background:#1a2a1a;border-color:var(--mild)}
+.s2{background:#2a1e0a;border-color:var(--moderate)}
+.s3{background:#2a0a0a;border-color:var(--severe)}
+.w-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px}
+.w-lbl{font-weight:700;font-size:.84rem}
+.w-badge{font-size:.77rem;font-weight:600;padding:2px 8px;border-radius:12px}
+.s0 .w-badge{background:rgba(136,145,168,.2)}
+.s1 .w-badge{background:rgba(76,175,80,.25);color:#81c784}
+.s2 .w-badge{background:rgba(255,152,0,.25);color:#ffb74d}
+.s3 .w-badge{background:rgba(244,67,54,.25);color:#ef9a9a}
+.conf{font-size:.72rem;color:#a8b0c8;margin-top:3px}
+.conf-ok{color:#69f0ae;font-weight:700}
+.w-notes{font-size:.81rem;margin-top:4px}
+.s0 .w-notes{color:var(--muted)}
+.s1 .w-notes{color:#a5d6a7}
+.s2 .w-notes{color:#ffe0b2}
+.s3 .w-notes{color:#ffcdd2}
+
+/* ── Chat ────────────────────────────────────────────────── */
+.chat-box{height:340px;overflow-y:auto;border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:12px;background:var(--surf2);display:flex;flex-direction:column;gap:10px}
+.msg{padding:10px 14px;border-radius:10px;font-size:.89rem;max-width:85%;line-height:1.5}
+.msg.u{background:var(--accent-d);align-self:flex-end}
+.msg.a{background:var(--surf);border:1px solid var(--bdr);align-self:flex-start}
+.msg-lbl{font-weight:700;font-size:.76rem;margin-bottom:3px;color:var(--muted)}
+.cinput{display:flex;gap:10px}
+.chat-input{flex:1;padding:12px 14px;border:2px solid var(--bdr);border-radius:8px;font-size:.93rem;background:var(--surf2);color:var(--text)}
+
+/* ── Content twins ───────────────────────────────────────── */
+.twins-section{margin-top:20px;background:var(--surf);border-radius:12px;padding:20px;border:1px solid var(--bdr)}
+.twins-section h2{font-size:1rem;font-weight:700;margin-bottom:6px}
+.twins-hint{font-size:.82rem;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.twins-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.twin-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:6px;color:var(--text);text-align:left}
+.twin-card .no-poster-wide{width:100%;aspect-ratio:2/3;background:var(--bdr);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.7rem;margin-bottom:6px}
+.twin-body{padding:0 4px 4px}
+.twin-title{font-size:.83rem;font-weight:600;line-height:1.25;margin-bottom:2px}
+.twin-year{font-size:.75rem;color:var(--muted);margin-bottom:2px}
+.twin-dist{font-size:.72rem;color:var(--mild);font-family:'Courier New',monospace}
+
+/* ── Recommendations ─────────────────────────────────────── */
+.reco-section{margin-top:20px;background:var(--surf);border-radius:12px;padding:20px;border:1px solid var(--bdr)}
+.reco-section h2{font-size:1rem;font-weight:700;margin-bottom:12px}
+.reco-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.reco-controls select{padding:8px 12px;border:1px solid var(--bdr);border-radius:8px;background:var(--surf2);color:var(--text);font-size:.88rem}
+.reco-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:4px}
+.reco-msg{font-size:.83rem;color:var(--muted);margin-top:8px}
+
+/* ── Discover ────────────────────────────────────────────── */
+.discover-section{margin-top:20px;background:var(--surf);border-radius:12px;padding:20px;border:1px solid var(--bdr)}
+.mood-hint{color:var(--muted);font-size:.88rem;margin-bottom:14px}
+.discover-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:14px}
+@media(max-width:767px){.discover-layout{grid-template-columns:1fr}}
+.discover-col h3{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.mood-pill{display:block;width:100%;text-align:left;padding:11px 14px;margin-bottom:8px;border:1px solid var(--bdr);border-radius:8px;background:var(--surf2);color:var(--text);font-size:.88rem}
+.mood-pill.active{background:rgba(108,142,255,.18);border-color:var(--accent);color:#9fb3ff}
+.mood-custom{display:block;width:100%;padding:11px 14px;border:1px solid var(--bdr);border-radius:8px;background:var(--surf2);color:var(--text);font-size:.88rem}
+.avoid-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.avoid-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--bdr);border-radius:8px;background:var(--surf2);font-size:.85rem}
+.avoid-item input{accent-color:var(--accent)}
+.mood-profile-box{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:.85rem}
+.mood-profile-box .mp-line{margin-bottom:4px}
+.mp-tone-good{display:inline-block;background:rgba(76,175,80,.2);color:#a5d6a7;padding:1px 8px;border-radius:10px;font-size:.77rem;margin-right:4px}
+.mp-tone-bad{display:inline-block;background:rgba(244,67,54,.18);color:#ef9a9a;padding:1px 8px;border-radius:10px;font-size:.77rem;margin-right:4px}
+
+/* ── Group Watch ─────────────────────────────────────────── */
+.group-section{margin-top:20px;background:var(--surf);border-radius:12px;padding:20px;border:1px solid var(--bdr)}
+.group-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:767px){.group-layout{grid-template-columns:1fr}}
+.group-col h3{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.member-list{margin-bottom:14px}
+.member-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--bdr);border-radius:8px;background:var(--surf2);margin-bottom:8px}
+.member-row .member-name{font-weight:600;font-size:.88rem}
+.member-row .member-sens{font-size:.76rem;color:var(--muted);margin-top:2px}
+.member-row .member-remove{background:transparent;border:none;color:var(--muted);font-size:1rem;padding:0 4px}
+.member-form{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:14px;margin-bottom:14px}
+.member-form input{display:block;width:100%;padding:9px 12px;border:1px solid var(--bdr);border-radius:6px;background:var(--bg);color:var(--text);font-size:.88rem;margin-bottom:10px}
+.group-results{margin-top:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.gres-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:10px}
+.gres-card .gres-score{display:inline-block;background:rgba(76,175,80,.2);color:#81c784;font-weight:800;font-size:.8rem;padding:2px 8px;border-radius:10px;margin-bottom:6px}
+.gres-card .no-poster{width:100%;aspect-ratio:2/3;background:var(--bdr);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.73rem;margin-bottom:8px}
+.gres-card .gres-title{font-size:.86rem;font-weight:700;margin-bottom:2px}
+.gres-card .gres-year{font-size:.75rem;color:var(--muted);margin-bottom:6px}
+.gres-card .gres-reason{font-size:.76rem;color:var(--muted);line-height:1.45}
+
+/* ── Watchlist ───────────────────────────────────────────── */
+.wl-section{margin-top:20px;background:var(--surf);border-radius:12px;padding:20px;border:1px solid var(--bdr)}
+.wl-hint{font-size:.82rem;color:var(--muted);margin-bottom:14px}
+.wl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.wl-card{background:var(--surf2);border-radius:10px;padding:12px;border:1px solid var(--bdr);position:relative}
+.wl-card .no-poster{width:100%;aspect-ratio:2/3;background:var(--bdr);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.73rem;margin-bottom:8px}
+.wl-card .wc-title{font-size:.85rem;font-weight:700;margin-bottom:2px}
+.wl-card .wc-year{font-size:.75rem;color:var(--muted);margin-bottom:6px}
+.wl-card .wc-badge{font-size:.78rem;font-weight:700;margin-bottom:4px}
+.wc-badge.safe{color:#81c784}
+.wc-badge.mild{color:#ffb74d}
+.wc-badge.strong{color:#ef9a9a}
+.wl-card .wc-one-liner{font-size:.75rem;color:var(--muted);line-height:1.4}
+.wl-card .wc-rank{position:absolute;top:8px;left:8px;background:var(--accent);color:#fff;font-size:.72rem;font-weight:800;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.wl-card .wc-remove{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);border:none;color:var(--muted);border-radius:50%;width:22px;height:22px;font-size:.75rem;display:flex;align-items:center;justify-content:center}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn{padding:10px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.88rem}
+.btn-sm{padding:7px 14px;font-size:.82rem}
+.btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--muted)}
+.btn-full{width:100%}
+
+/* ── Navigation between mockups ──────────────────────────── */
+.mockup-nav{margin-top:40px;padding-top:20px;border-top:1px solid var(--bdr);text-align:center;font-size:.85rem;color:var(--muted)}
+.mockup-nav a{color:var(--accent);text-decoration:none;margin:0 8px}
+.mockup-nav a:hover{text-decoration:underline}
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="mockup-banner">
+    <strong>Mockup 5 of 5 — My Watchlist.</strong>
+    Personalized ranking of saved films by the user's sensitivity profile. Demonstrates the safety-tier badge (🟢/🟡/🔴), explicit rank numbers, and the rationale per card.
+    See <a href="../wireframes.md">../wireframes.md § Screen 7</a> for design rationale.
+  </div>
+
+  <header>
+    <h1>&#127916; ReelShield</h1>
+    <p>AI-powered content analysis — Gemini + TMDB</p>
+  </header>
+
+  <section class="wl-section">
+    <h2 style="font-size:1.15rem;font-weight:700;margin-bottom:4px">&#128203; My Watchlist</h2>
+    <p class="wl-hint">Movies are ranked safest-to-most-triggering based on your sensitivity profile (Self-harm, Flashing lights).</p>
+
+    <button class="btn" style="margin-bottom:14px">&#11088; Rank by My Sensitivities</button>
+
+    <div class="wl-grid">
+      <div class="wl-card">
+        <span class="wc-rank">1</span>
+        <button class="wc-remove">&times;</button>
+        <div class="no-poster">Poster</div>
+        <p class="wc-title">Hidden Figures</p>
+        <p class="wc-year">2016</p>
+        <p class="wc-badge safe">&#128994; Safe</p>
+        <p class="wc-one-liner">No triggers match your profile.</p>
+      </div>
+
+      <div class="wl-card">
+        <span class="wc-rank">2</span>
+        <button class="wc-remove">&times;</button>
+        <div class="no-poster">Poster</div>
+        <p class="wc-title">Lady Bird</p>
+        <p class="wc-year">2017</p>
+        <p class="wc-badge safe">&#128994; Safe</p>
+        <p class="wc-one-liner">No flashing or self-harm content.</p>
+      </div>
+
+      <div class="wl-card">
+        <span class="wc-rank">3</span>
+        <button class="wc-remove">&times;</button>
+        <div class="no-poster">Poster</div>
+        <p class="wc-title">Green Book</p>
+        <p class="wc-year">2018</p>
+        <p class="wc-badge mild">&#128993; Mild triggers</p>
+        <p class="wc-one-liner">Brief flashing during diner scene.</p>
+      </div>
+
+      <div class="wl-card">
+        <span class="wc-rank">4</span>
+        <button class="wc-remove">&times;</button>
+        <div class="no-poster">Poster</div>
+        <p class="wc-title">Inception</p>
+        <p class="wc-year">2010</p>
+        <p class="wc-badge mild">&#128993; Mild triggers</p>
+        <p class="wc-one-liner">Some flashing effects in dream sequences.</p>
+      </div>
+
+      <div class="wl-card">
+        <span class="wc-rank">5</span>
+        <button class="wc-remove">&times;</button>
+        <div class="no-poster">Poster</div>
+        <p class="wc-title">Get Out</p>
+        <p class="wc-year">2017</p>
+        <p class="wc-badge strong">&#128308; Strong triggers</p>
+        <p class="wc-one-liner">Repeated flashing during the Sunken Place; self-harm implied.</p>
+      </div>
+
+      <div class="wl-card">
+        <span class="wc-rank">6</span>
+        <button class="wc-remove">&times;</button>
+        <div class="no-poster">Poster</div>
+        <p class="wc-title">The Dark Knight</p>
+        <p class="wc-year">2008</p>
+        <p class="wc-badge strong">&#128308; Strong triggers</p>
+        <p class="wc-one-liner">Heavy flashing in interrogation scenes.</p>
+      </div>
+    </div>
+  </section>
+
+  <nav class="mockup-nav">
+    <a href="04-group-watch.html">&larr; Prev: Group Watch</a> &middot;
+    <a href="01-home.html">Back to start &rarr;</a>
+  </nav>
+</div>
+</body>
+</html>

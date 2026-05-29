@@ -1,0 +1,361 @@
+{% raw %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ReelShield</title>
+<link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to main content</a>
+<div id="live" aria-live="polite" aria-atomic="true"></div>
+
+<div class="container">
+  <header>
+    <h1>&#127916; ReelShield</h1>
+    <p>AI-powered content analysis &mdash; Gemini + TMDB</p>
+    <div class="header-btns">
+      <button class="settings-btn" onclick="openSensitivityEditor()" aria-label="Edit Sensitivities profile">&#128737; Sensitivities</button>
+      <button class="settings-btn" onclick="openPromptEditor()" aria-label="Edit AI prompt">&#9881; AI Prompt</button>
+    </div>
+  </header>
+
+  <!-- Auth Bar -->
+  <div id="authBar" role="region" aria-label="Account">
+    <div class="auth-left" id="authStatus">Not logged in</div>
+    <div id="authForm" class="auth-inline">
+      <input type="text" id="authUser" placeholder="Username" autocomplete="username" aria-label="Username">
+      <input type="password" id="authPass" placeholder="Password" autocomplete="on" aria-label="Password">
+      <button class="btn btn-sm" onclick="doLogin()">Log In</button>
+      <button class="btn btn-sm btn-ghost" onclick="doRegister()">Register</button>
+      <div id="authMsg" aria-live="polite"></div>
+    </div>
+    <div id="authLogout" style="display:none">
+      <button class="btn btn-sm btn-ghost" onclick="doLogout()">Log Out</button>
+    </div>
+  </div>
+
+  <!-- Sensitivity Profile Modal -->
+  <div class="modal-overlay" id="sensitivityModal" role="dialog" aria-modal="true" aria-labelledby="sensModalTitle">
+    <div class="modal">
+      <h2 id="sensModalTitle">&#128737; My Sensitivity Profile</h2>
+      <p class="hint">Select the content categories you want to be warned about. This personalizes your watchlist ranking and badges.</p>
+      <div class="sens-grid" id="sensGrid"></div>
+      <div class="modal-actions">
+        <button class="btn" onclick="saveSensitivities()">Save Profile</button>
+        <button class="btn btn-ghost" onclick="closeSensitivityEditor()">Cancel</button>
+      </div>
+      <p id="sensMsg" class="modal-msg" aria-live="polite"></p>
+    </div>
+  </div>
+
+  <main aria-label="ReelShield primary content">
+
+  <!-- Epilepsy Banner -->
+  <div id="epiBar" role="alert" aria-label="Photosensitive epilepsy warning">
+    <div class="inner">
+      <span class="icon" aria-hidden="true">&#9888;&#65039;</span>
+      <div>
+        <h2>Photosensitive Epilepsy Warning</h2>
+        <p>This film contains <strong>flashing lights or rapidly changing visual patterns</strong> that may cause seizures in people with photosensitive epilepsy.</p>
+        <p id="epiNotes"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-box" role="search">
+    <label class="search-lbl" for="searchInput">Search for a movie</label>
+    <div class="search-row">
+      <select id="genreSelect" aria-label="Filter by genre" onchange="onGenreChange()">
+        <option value="">All genres</option>
+        <option value="28">Action</option>
+        <option value="12">Adventure</option>
+        <option value="16">Animation</option>
+        <option value="35">Comedy</option>
+        <option value="80">Crime</option>
+        <option value="99">Documentary</option>
+        <option value="18">Drama</option>
+        <option value="10751">Family</option>
+        <option value="14">Fantasy</option>
+        <option value="36">History</option>
+        <option value="27">Horror</option>
+        <option value="10402">Music</option>
+        <option value="9648">Mystery</option>
+        <option value="10749">Romance</option>
+        <option value="878">Science Fiction</option>
+        <option value="53">Thriller</option>
+        <option value="10752">War</option>
+        <option value="37">Western</option>
+      </select>
+      <input type="search" id="searchInput" placeholder="e.g. Interstellar, The Dark Knight..."
+             autocomplete="off" aria-label="Search for a movie" aria-describedby="searchStatus">
+    </div>
+    <div id="searchStatus" aria-live="polite"></div>
+    <div id="searchResults" class="results" role="region" aria-label="Search results"></div>
+  </div>
+
+  <div id="loader" aria-live="polite">
+    <div class="spin" aria-hidden="true"></div>
+    <p id="loaderMsg">Fetching movie data&hellip;</p>
+  </div>
+
+  <!-- Movie warnings + chat layout (shown after a movie is loaded) -->
+  <section id="main" aria-label="Movie content warnings and chat">
+    <section class="panel" aria-labelledby="wpTitle">
+      <h2 id="wpTitle" style="display:none">&#128683; Content Warnings</h2>
+      <div id="movieMeta" aria-live="polite"></div>
+      <button class="btn btn-ghost btn-sm" id="wlBtn" onclick="toggleWatchlist()" style="display:none" aria-label="Add to watchlist"></button>
+      <div class="sptoggle">
+        <span id="spLbl">Spoiler mode: <strong>Off</strong></span>
+        <button id="spBtn" role="switch" aria-checked="false" aria-labelledby="spLbl"
+                onclick="toggleSpoiler()" aria-describedby="spHint"></button>
+      </div>
+      <p id="spHint" class="sp-hint">Spoiler mode may reveal plot details in warning descriptions.</p>
+      <p id="genreNote" aria-live="polite"></p>
+      <p class="sp-hint" style="margin-bottom:8px">Tap &#128077; or &#128078; on any warning or AI response to tell us if it&rsquo;s accurate &mdash; your feedback helps improve future results.</p>
+      <div id="wList" role="list" aria-label="Warning categories" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="cpTitle">
+      <h2 id="cpTitle">&#128172; Ask Questions</h2>
+      <div id="chatBox" role="log" aria-live="polite" aria-label="Conversation history" tabindex="0">
+        <p style="color:var(--muted);font-size:.88rem;">Select a movie to start asking questions.</p>
+      </div>
+      <div class="cinput">
+        <label for="chatIn" class="sr-only">Your question</label>
+        <input type="text" id="chatIn" placeholder="Ask about this film's content..."
+               aria-label="Your question about the movie">
+        <button class="btn" id="sendBtn" onclick="sendMsg()" aria-label="Send message">Send</button>
+      </div>
+    </section>
+  </section>
+
+  <!-- Discover (merged mood + warning avoidance) -->
+  <div id="discoverSection" role="region" aria-label="Find movies">
+    <h2>Find Movies</h2>
+    <p class="mood-hint">Choose your mood and the warnings you want to avoid — we'll find the best matches from our movie cache.</p>
+
+    <div class="discover-layout">
+      <div class="discover-col">
+        <p class="discover-col-label">How are you feeling? <span style="color:var(--muted)">(optional)</span></p>
+        <div class="mood-options" role="group" aria-label="Mood selection">
+          <button class="mood-option" data-mood="I need something light and easy" onclick="selectMood(this)" aria-pressed="false">
+            I need something light and easy
+          </button>
+          <button class="mood-option" data-mood="I'm okay with some emotion but nothing heavy" onclick="selectMood(this)" aria-pressed="false">
+            I'm okay with some emotion but nothing heavy
+          </button>
+          <button class="mood-option" data-mood="I can handle something intense tonight" onclick="selectMood(this)" aria-pressed="false">
+            I can handle something intense tonight
+          </button>
+          <button class="mood-option" data-mood="I want to feel something deep — bring it on" onclick="selectMood(this)" aria-pressed="false">
+            I want to feel something deep — bring it on
+          </button>
+          <button class="mood-option" data-mood="I need comfort and familiarity" onclick="selectMood(this)" aria-pressed="false">
+            I need comfort and familiarity
+          </button>
+        </div>
+        <div class="mood-custom-row">
+          <label for="moodCustom" class="sr-only">Or describe your mood in your own words</label>
+          <input type="text" id="moodCustom" class="mood-custom-input"
+                 placeholder="Or describe your own mood…"
+                 oninput="onMoodCustomInput()"
+                 aria-label="Describe your mood in your own words">
+        </div>
+      </div>
+
+      <div class="discover-col">
+        <p class="discover-col-label">Warnings to avoid <span style="color:var(--muted)">(pick up to 3)</span></p>
+        <div class="avoid-grid" id="avoidGrid"></div>
+        <p id="avoidLimitMsg" style="font-size:.76rem;color:#ffb74d;min-height:16px;margin-top:4px"></p>
+      </div>
+    </div>
+
+    <!-- Mood profile display -->
+    <div id="moodProfileBox" aria-live="polite">
+      <p id="moodSummaryText" class="mp-summary-text"></p>
+      <p class="mp-ceiling" id="moodCeilingText"></p>
+      <div style="display:flex;gap:16px;flex-wrap:wrap">
+        <div>
+          <p style="font-size:.77rem;color:var(--muted);margin-bottom:4px">Tones that fit:</p>
+          <div class="mood-profile-row" id="moodTonesGood"></div>
+        </div>
+        <div>
+          <p style="font-size:.77rem;color:var(--muted);margin-bottom:4px">Tones to skip:</p>
+          <div class="mood-profile-row" id="moodTonesBad"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="discoverMovies()" id="discoverBtn" style="margin-bottom:14px">Find Movies</button>
+    <div id="discoverMsg" aria-live="polite" style="font-size:.83rem;color:var(--muted);margin-bottom:10px;min-height:18px"></div>
+    <div class="mood-rec-grid" id="discoverGrid" role="list"></div>
+  </div>
+
+  <!-- Group Watch -->
+  <div id="groupSection" role="region" aria-label="Group watch finder">
+    <h2>&#128101; Group Watch Finder</h2>
+    <p class="gs-hint">Add everyone in your group, merge their sensitivities, and find movies safe for all.</p>
+
+    <div class="group-layout">
+      <!-- Left: member builder -->
+      <div class="group-col">
+        <h3>Group Members</h3>
+        <div class="member-list" id="memberList"></div>
+        <div class="member-form">
+          <input type="text" id="memberName" placeholder="Member name (e.g. Sarah)" aria-label="Member name">
+          <p style="font-size:.78rem;color:var(--muted);margin:2px 0">Their sensitivities:</p>
+          <div class="member-sens-grid" id="memberSensGrid"></div>
+          <button class="btn btn-sm" onclick="addMember()">+ Add Member</button>
+          <p id="addMemberMsg" role="alert" style="font-size:.8rem;color:#ff8a80;margin-top:6px;min-height:16px"></p>
+        </div>
+        <button class="btn btn-sm btn-ghost" onclick="mergeGroupProfiles()" id="mergeBtn" disabled>&#9881; Merge Profiles</button>
+        <p id="mergeMsg" role="alert" style="font-size:.8rem;color:#ff8a80;margin-top:6px;min-height:16px"></p>
+      </div>
+
+      <!-- Right: merged profile + find movies -->
+      <div class="group-col">
+        <h3>Group Profile</h3>
+        <div id="mergedProfile" aria-live="polite">
+          <p class="mp-summary" id="mpSummary"></p>
+          <p style="font-size:.77rem;color:var(--muted);margin-bottom:4px">All sensitivities:</p>
+          <div class="mp-row" id="mpTags"></div>
+          <p style="font-size:.77rem;color:var(--muted);margin-bottom:4px;margin-top:8px">Avoid genres:</p>
+          <div class="mp-row" id="mpAvoid"></div>
+          <p style="font-size:.77rem;color:var(--muted);margin-bottom:4px;margin-top:8px">Suggested genres:</p>
+          <div class="mp-row" id="mpReco"></div>
+        </div>
+
+        <h3 style="margin-top:14px">Find Movies</h3>
+        <div class="group-controls">
+          <select id="moodSelect" aria-label="Mood preference">
+            <option value="">Any mood</option>
+            <option value="comedy">Comedy</option>
+            <option value="feel-good">Feel-good</option>
+            <option value="adventure">Adventure</option>
+            <option value="family">Family</option>
+            <option value="drama">Drama</option>
+            <option value="animation">Animation</option>
+            <option value="sci-fi">Sci-Fi</option>
+            <option value="romance">Romance</option>
+            <option value="documentary">Documentary</option>
+          </select>
+          <button class="btn btn-sm" onclick="findGroupMovies()" id="groupRecBtn" disabled>&#127916; Find Movies</button>
+        </div>
+        <div id="groupRecMsg" aria-live="polite"></div>
+        <div class="group-rec-grid" id="groupRecGrid" role="list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Watchlist -->
+  <div id="watchlistSection" role="region" aria-label="My watchlist">
+    <h2>&#128203; My Watchlist</h2>
+    <p class="wl-hint">Movies are ranked safest-to-most-triggering based on your sensitivity profile.</p>
+    <button class="btn btn-sm" id="wlRankBtn" onclick="rankWatchlist()">&#127775; Rank by My Sensitivities</button>
+    <div id="wlRankMsg" aria-live="polite"></div>
+    <div id="wlGrid" class="wl-grid" role="list" aria-label="Watchlist movies"></div>
+  </div>
+
+  <!-- Content Twins (K-Means cluster neighbors) -->
+  <div id="twinsSection" role="region" aria-label="Content twins" style="display:none">
+    <h2>&#129504; Films with a Similar Content Profile</h2>
+    <p class="twins-hint" id="twinsHint"></p>
+    <div class="twins-grid" id="twinsGrid" role="list"></div>
+  </div>
+
+  <!-- Recommendations -->
+  <div id="recoSection" role="region" aria-label="Movie recommendations">
+    <h2>&#127902; Similar Movies Without...</h2>
+    <div class="reco-controls">
+      <label for="avoidSelect" class="sr-only">Warning category to avoid</label>
+      <select id="avoidSelect" aria-label="Select a warning category to avoid">
+        <option value="">Select a warning to avoid</option>
+        <option value="violence_gore">Violence &amp; Gore</option>
+        <option value="self_harm_suicide">Self-Harm &amp; Suicide</option>
+        <option value="miscarriage_pregnancy_loss">Miscarriage / Pregnancy Loss</option>
+        <option value="sexual_content_nudity">Sexual Content &amp; Nudity</option>
+        <option value="animal_abuse">Animal Abuse</option>
+        <option value="substances">Substance Use</option>
+        <option value="language">Language</option>
+        <option value="horror_intensity">Horror / Intensity</option>
+        <option value="flashing_lights">Flashing Lights</option>
+      </select>
+      <button class="btn btn-sm" onclick="fetchRecommendations()">Find Movies</button>
+    </div>
+    <div id="recoMsg" aria-live="polite"></div>
+    <div id="recoResults" aria-label="Recommended movies"></div>
+  </div>
+
+  <!-- Reviews -->
+  <div id="reviewSection" role="region" aria-label="User reviews">
+    <h2>&#11088; Reviews &amp; Ratings</h2>
+
+    <!-- External ratings (IMDb, RT, Metacritic) -->
+    <div id="extRatingsWrap" style="display:none">
+      <p style="font-size:.82rem;color:var(--muted);margin-bottom:8px">From critics &amp; aggregators:</p>
+      <div id="extRatings" class="ratings-row" aria-label="External ratings"></div>
+      <hr class="section-divider">
+    </div>
+
+    <!-- External written reviews from TMDB -->
+    <div id="extReviewsWrap" style="display:none">
+      <p style="font-size:.85rem;font-weight:600;margin-bottom:10px">Critic Reviews</p>
+      <div id="extReviewsList" aria-label="Critic reviews"></div>
+      <hr class="section-divider">
+    </div>
+
+    <!-- User review form -->
+    <p style="font-size:.85rem;font-weight:600;margin-bottom:10px">User Reviews</p>
+    <div class="review-form" id="reviewFormWrap">
+      <div id="reviewLoginNote" style="font-size:.85rem;color:var(--muted);margin-bottom:8px;display:none">
+        <a href="#authBar" style="color:var(--accent)">Log in</a> to post a review.
+      </div>
+      <div id="reviewFormInner">
+        <p class="review-form-lbl" id="ratingLbl">Your rating</p>
+        <div class="star-row" id="starRow" role="group" aria-labelledby="ratingLbl">
+          <button class="star" data-v="1" onclick="setStar(1)" aria-label="1 star">&#9733;</button>
+          <button class="star" data-v="2" onclick="setStar(2)" aria-label="2 stars">&#9733;</button>
+          <button class="star" data-v="3" onclick="setStar(3)" aria-label="3 stars">&#9733;</button>
+          <button class="star" data-v="4" onclick="setStar(4)" aria-label="4 stars">&#9733;</button>
+          <button class="star" data-v="5" onclick="setStar(5)" aria-label="5 stars">&#9733;</button>
+        </div>
+        <label for="reviewTA">Your review</label>
+        <textarea id="reviewTA" placeholder="Share your thoughts..." aria-label="Your review"></textarea>
+        <button class="btn btn-sm" onclick="submitReview()">Post Review</button>
+        <div id="reviewMsg" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="review-list" id="reviewList" aria-live="polite"></div>
+  </div>
+
+  </main>
+</div>
+
+<!-- Prompt Editor Modal -->
+<div class="modal-overlay" id="promptModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <h2 id="modalTitle">&#9999;&#65039; Edit AI Prompt</h2>
+    <p class="hint">
+      Customize how Gemini generates content warnings. The following placeholders are <strong>required</strong>:<br>
+      <code>{title}</code> &nbsp; <code>{year}</code> &nbsp; <code>{rating}</code> &nbsp;
+      <code>{genres}</code> &nbsp; <code>{overview}</code> &nbsp; <code>{keywords}</code>
+    </p>
+    <label for="promptTA" class="sr-only">AI prompt template</label>
+    <textarea id="promptTA" spellcheck="false"></textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="savePrompt()">Save Prompt</button>
+      <button class="btn btn-ghost" onclick="resetPrompt()">Reset to Default</button>
+      <button class="btn btn-ghost" onclick="closePromptEditor()">Cancel</button>
+    </div>
+    <p id="promptMsg" class="modal-msg" aria-live="polite"></p>
+  </div>
+</div>
+
+<script src="/static/js/app.js" defer></script>
+</body>
+</html>
+{% endraw %}
