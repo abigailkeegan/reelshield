@@ -1,34 +1,9 @@
----
-title: ReelShield
-emoji: 🎬
-colorFrom: red
-colorTo: purple
-sdk: docker
-pinned: false
----
-
 # 🎬 ReelShield
 
 > AI-powered content warnings for movies, powered by Gemini + TMDB.
 > Built for trauma survivors, people with photosensitive epilepsy, and caregivers who need to know what's in a film before watching.
 
 **Live demo:** https://huggingface.co/spaces/abigailkeegan/ReelShield
-
----
-
-## About the metadata block at the top of this file
-
-The `---` block at the very top of this README is [Hugging Face Spaces](https://huggingface.co/docs/hub/spaces-config-reference) configuration.z Hugging Face reads it to set up the deployed Space:
-
-- `title` and `emoji`: the name and icon shown on the Space's card.
-
-- `colorFrom` and `colorTo`: the two colors of the gradient on that card (here, red to purple).
-
-- `sdk: docker`: tells Hugging Face to build the Space from the `Dockerfile` in this repo.
-
-- `pinned: false`: keeps the Space from being pinned to the owner's profile.
-
-On a plain GitHub clone this block is inert. It only takes effect when the repo is deployed as a Hugging Face Space, so you can leave it as is or delete it if you are not deploying there.
 
 ---
 
