@@ -1,5 +1,10 @@
 # 🎬 ReelShield
 
+![Tests](https://github.com/abigailkeegan/reelshield/actions/workflows/test.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.11-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+[![Live Demo](https://img.shields.io/badge/demo-Hugging%20Face-orange)](https://huggingface.co/spaces/abigailkeegan/ReelShield)
+
 > AI-powered content warnings for movies, powered by Gemini + TMDB.
 > Built for trauma survivors, people with photosensitive epilepsy, and caregivers who need to know what's in a film before watching.
 
