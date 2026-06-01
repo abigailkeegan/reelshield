@@ -127,11 +127,11 @@ movie-warnings/
 
 ## Database Setup
 
-The live `movie_cache.db` is gitignored, since it accumulates real user accounts and usage data. What ships with the repo instead is `data/movie_cache.seed.db`: a sanitized snapshot with all 421 cached films, their content warnings, MiniLM embeddings, and K-Means cluster assignments, but with every user account, review, and usage log stripped out.
+The live `movie_cache.db` is gitignored, since it accumulates real user accounts and usage data. What ships with the repo instead is `data/movie_cache.seed.db`: a sanitized snapshot with all 418 cached films, their content warnings, MiniLM embeddings, and K-Means cluster assignments, but with every user account, review, and usage log stripped out.
 
 You have two ways to start:
 
-Start with the full cache (recommended). Copy the seed snapshot into place before the first run, so searches for the 421 included films are instant:
+Start with the full cache (recommended). Copy the seed snapshot into place before the first run, so searches for the 418 included films are instant:
 
 ```
 cp data/movie_cache.seed.db data/movie_cache.db
