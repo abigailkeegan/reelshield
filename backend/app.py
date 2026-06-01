@@ -1333,7 +1333,13 @@ def _prompt_editing_authorized() -> bool:
 
 @app.route("/api/prompt", methods=["GET"])
 def get_prompt():
-    return jsonify({"prompt": app_state["prompt_template"]})
+    # `editable` tells the UI whether this deployment has prompt editing
+    # enabled at all (an admin token is configured). The public Hugging Face
+    # demo runs without a token, so the UI shows a locked notice there.
+    return jsonify({
+        "prompt": app_state["prompt_template"],
+        "editable": bool(os.environ.get("PROMPT_ADMIN_TOKEN", "")),
+    })
 
 @app.route("/api/prompt", methods=["POST"])
 def set_prompt():

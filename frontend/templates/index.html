@@ -338,19 +338,22 @@
 <!-- Prompt Editor Modal -->
 <div class="modal-overlay" id="promptModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal">
-    <h2 id="modalTitle">&#9999;&#65039; Edit AI Prompt</h2>
-    <p class="hint">
+    <h2 id="modalTitle">&#9999;&#65039; AI Prompt</h2>
+    <p id="promptLocked" class="modal-msg" hidden>
+      The prompt is locked in Hugging Face. You can deploy your own ReelShield for an editable prompt.
+    </p>
+    <p id="promptHint" class="hint">
       Customize how Gemini generates content warnings. The following placeholders are <strong>required</strong>:<br>
       <code>{title}</code> &nbsp; <code>{year}</code> &nbsp; <code>{rating}</code> &nbsp;
       <code>{genres}</code> &nbsp; <code>{overview}</code> &nbsp; <code>{keywords}</code>
     </p>
     <label for="promptTA" class="sr-only">AI prompt template</label>
     <textarea id="promptTA" spellcheck="false"></textarea>
-    <label for="promptToken" class="hint">Admin token (required to save or reset):</label>
+    <label id="promptTokenLabel" for="promptToken" class="hint">Admin token (required to save or reset):</label>
     <input id="promptToken" type="password" autocomplete="off" spellcheck="false">
     <div class="modal-actions">
-      <button class="btn" onclick="savePrompt()">Save Prompt</button>
-      <button class="btn btn-ghost" onclick="resetPrompt()">Reset to Default</button>
+      <button id="promptSaveBtn" class="btn" onclick="savePrompt()">Save Prompt</button>
+      <button id="promptResetBtn" class="btn btn-ghost" onclick="resetPrompt()">Reset to Default</button>
       <button class="btn btn-ghost" onclick="closePromptEditor()">Cancel</button>
     </div>
     <p id="promptMsg" class="modal-msg" aria-live="polite"></p>

@@ -517,11 +517,23 @@ function _closeModal(modal) {
 }
 
 // ── Prompt editor ─────────────────────────────────────────────
+function _setPromptEditable(editable) {
+  const show = (id, on) => { const el = document.getElementById(id); if (el) el.hidden = !on; };
+  // Locked notice only when editing is disabled; editor controls only when enabled.
+  show('promptLocked', !editable);
+  show('promptHint', editable);
+  show('promptTokenLabel', editable);
+  show('promptToken', editable);
+  show('promptSaveBtn', editable);
+  show('promptResetBtn', editable);
+  document.getElementById('promptTA').readOnly = !editable;
+}
 async function openPromptEditor() {
   const res  = await fetch('/api/prompt');
   const data = await res.json();
   document.getElementById('promptTA').value      = data.prompt;
   document.getElementById('promptMsg').textContent = '';
+  _setPromptEditable(data.editable !== false);
   _openModal(document.getElementById('promptModal'), document.getElementById('promptTA'));
 }
 function closePromptEditor() { _closeModal(document.getElementById('promptModal')); }

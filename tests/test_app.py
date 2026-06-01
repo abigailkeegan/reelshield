@@ -54,6 +54,14 @@ ADMIN_TOKEN = "test-admin-token"
 ADMIN_HEADERS = {"X-Admin-Token": ADMIN_TOKEN}
 
 
+def test_get_prompt_editable_flag(client, monkeypatch):
+    """GET /api/prompt reports whether editing is enabled for this deployment."""
+    monkeypatch.delenv("PROMPT_ADMIN_TOKEN", raising=False)
+    assert client.get('/api/prompt').get_json()['editable'] is False
+    monkeypatch.setenv("PROMPT_ADMIN_TOKEN", "test-admin-token")
+    assert client.get('/api/prompt').get_json()['editable'] is True
+
+
 def test_set_prompt_requires_admin_token(client, monkeypatch):
     """Without a configured/matching token, editing is forbidden (403)."""
     monkeypatch.setenv("PROMPT_ADMIN_TOKEN", ADMIN_TOKEN)
