@@ -7,6 +7,7 @@
 
 > AI-powered content warnings for movies, powered by Gemini + TMDB.
 > Built for trauma survivors, people with photosensitive epilepsy, and caregivers who need to know what's in a film before watching.
+> This was created by Abigail Keegan, Janvi Rautela and Nobukhosi Sibanda for Pace University's Spring 2026 Analytics Capstone with Professor Yiqiao Yin. 
 
 **Live demo:** https://huggingface.co/spaces/abigailkeegan/ReelShield
 
