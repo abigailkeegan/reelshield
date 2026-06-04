@@ -105,7 +105,8 @@ movie-warnings/
 │   │   └── 004_movie_clusters.sql
 │   ├── diagrams/
 │   │   └── er-diagram.md
-│   └── decade-analysis.md
+│   ├── decade-analysis.md
+│   └── data-quality-audit.md
 ├── docs/
 │   ├── personas/
 │   │   └── user-personas.md            # 3 personas + journey maps
@@ -309,3 +310,4 @@ Backend tests live in `tests/test_app.py` (health, search, prompt, chat, warning
 | Accessibility audit (Lighthouse) | docs/wireframes/accessibility/README.md |
 | ER Diagram | data-engineering/diagrams/er-diagram.md |
 | Decade Analysis (analytics example) | data-engineering/decade-analysis.md |
+| Data Quality Audit | data-engineering/data-quality-audit.md |

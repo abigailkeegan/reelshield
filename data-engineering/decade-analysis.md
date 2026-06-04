@@ -1,86 +1,90 @@
-# Decade Analysis — Content Warning Trends
+# Decade Analysis: Content Warning Trends
 
-A worked analytics example over the live ReelShield cache. Computed against `content_warnings.warnings_json` joined to `movies.year`, grouped into decade buckets.
+A worked analytics example over the ReelShield cache. Computed by joining `content_warnings.warnings_json` to `movies.year`, grouped into decade buckets.
 
-**Snapshot date:** 2026-05-08
-**Cache size at snapshot:** 225 movies with generated warnings
+**Snapshot date:** 2026-06-04
+**Cache size at snapshot:** 418 films, all with generated warnings
+
+This refresh runs against the cache after a data-quality remediation (see [data-quality-audit.md](data-quality-audit.md)), which re-assessed 65 films that had been stored with all-zero severities. Correcting those under-reported entries raised the observed averages, especially for violence and intensity, so the numbers here are higher than earlier snapshots.
 
 ---
 
 ## 1. Cache coverage by decade
 
-| Decade | Count |
+| Decade | Films |
 |--------|------:|
-| 1940s  | 2     |
-| 1950s  | 3     |
-| 1960s  | 9     |
-| 1970s  | 14    |
-| 1980s  | 16    |
-| 1990s  | 34    |
-| 2000s  | 52    |
-| 2010s  | 61    |
-| 2020s  | 33    |
+| 1910s  | 1     |
+| 1930s  | 6     |
+| 1940s  | 3     |
+| 1950s  | 10    |
+| 1960s  | 12    |
+| 1970s  | 22    |
+| 1980s  | 30    |
+| 1990s  | 74    |
+| 2000s  | 103   |
+| 2010s  | 93    |
+| 2020s  | 64    |
 
-Sample sizes pre-1970s are small (2–9 films/decade); read those rows with appropriate caution.
-
----
-
-## 2. Average severity per category per decade (0–3 scale)
-
-| Category | 1940s | 1950s | 1960s | 1970s | 1980s | 1990s | 2000s | 2010s | 2020s |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| violence_gore | 0.50 | 0.67 | 0.67 | 1.29 | 1.12 | 1.56 | 1.08 | 1.44 | 1.36 |
-| self_harm_suicide | 0.00 | 0.00 | 0.00 | 0.21 | 0.25 | 0.15 | 0.00 | 0.21 | 0.09 |
-| miscarriage_pregnancy_loss | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.06 | 0.04 | 0.11 | 0.00 |
-| sexual_content_nudity | 0.00 | 0.00 | 0.11 | 0.43 | 0.44 | 0.68 | 0.35 | 0.56 | 0.42 |
-| animal_abuse | 0.00 | 0.00 | 0.22 | 0.21 | 0.25 | 0.21 | 0.17 | 0.31 | 0.27 |
-| substances | 0.50 | 0.33 | 0.56 | 0.71 | 0.31 | 0.82 | 0.52 | 0.67 | 0.52 |
-| language | 0.50 | 0.67 | 0.44 | 0.86 | 0.75 | 1.35 | 0.88 | 1.21 | 0.97 |
-| horror_intensity | 0.50 | 0.33 | 0.00 | 0.93 | 0.81 | 0.94 | 0.79 | 1.20 | 0.88 |
-| flashing_lights | 0.00 | 0.00 | 0.00 | 0.14 | 0.25 | 0.41 | 0.25 | 0.48 | 0.61 |
+Pre-1950s decades have very few films (1 to 6 each), so they are excluded from the severity averages below. The analysis in sections 2 to 4 uses the 1950s onward, where every decade has at least 10 films.
 
 ---
 
-## 3. Most consistent decade-over-decade increase
+## 2. Average severity per category per decade (0 to 3 scale, decades with n >= 10)
 
-`flashing_lights` — increased in **5 of 8** decade transitions, **net change +0.61**, and is the only category that ends at its all-time high (2020s = 0.61). This aligns with the rise of post-2000s digital editing and high-contrast color grading, and is exactly the trend that motivated putting the photosensitive epilepsy banner at the top of every movie page.
+| Category | 1950s | 1960s | 1970s | 1980s | 1990s | 2000s | 2010s | 2020s |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| violence_gore | 1.00 | 1.58 | 1.59 | 1.57 | 1.81 | 1.68 | 1.81 | 1.89 |
+| self_harm_suicide | 0.20 | 0.00 | 0.18 | 0.30 | 0.22 | 0.17 | 0.29 | 0.16 |
+| miscarriage_pregnancy_loss | 0.00 | 0.00 | 0.00 | 0.00 | 0.05 | 0.08 | 0.10 | 0.05 |
+| sexual_content_nudity | 0.20 | 0.58 | 0.68 | 0.73 | 0.76 | 0.59 | 0.74 | 0.58 |
+| animal_abuse | 0.00 | 0.25 | 0.41 | 0.20 | 0.22 | 0.21 | 0.30 | 0.34 |
+| substances | 1.00 | 1.00 | 1.09 | 0.77 | 1.01 | 0.94 | 1.09 | 0.88 |
+| language | 0.50 | 0.75 | 1.27 | 1.30 | 1.62 | 1.41 | 1.63 | 1.56 |
+| horror_intensity | 0.80 | 0.92 | 1.00 | 1.20 | 1.34 | 1.28 | 1.52 | 1.44 |
+| flashing_lights | 0.00 | 0.00 | 0.09 | 0.57 | 0.55 | 0.43 | 0.62 | 1.03 |
 
-For comparison:
-- `sexual_content_nudity` ties on transition count (5/8) but with a smaller net Δ.
-- `violence_gore` has the largest net rise (+0.86) but more zigzag (only 4/8 transitions trending up).
+---
+
+## 3. Notable trends
+
+- **flashing_lights** is the clearest trend tied to a product decision. It nearly doubles in the most recent decade (0.62 in the 2010s to 1.03 in the 2020s), ends at its all-time high, and posts the second-largest net rise (+1.03) across the window. This is the trend that motivated the photosensitive epilepsy banner at the top of every movie page.
+- **language** has the largest net increase (+1.06), rising in 5 of 7 decade transitions, consistent with loosening content standards from the 1970s onward.
+- **violence_gore** also ends at its all-time high (1.89 in the 2020s, +0.89 net). It and flashing_lights are the only two categories peaking in the most recent decade.
+- The rarer trauma categories (self_harm_suicide, miscarriage_pregnancy_loss, animal_abuse) stay low across every decade (means mostly under 0.4) with no clear direction.
 
 ---
 
 ## 4. Highest average severity, all categories combined
 
-**2010s** — mean **0.689** across all 9 categories (n = 549 category-severity values), narrowly edging out the **1990s** at 0.686.
+The **2010s** lead at a mean of **0.900** across all 9 categories (n = 837 category-severity values), narrowly ahead of the **2020s** at **0.880**. Severity climbs fairly steadily from the 1950s (0.411) to the 2010s peak, then dips slightly in the still-incomplete 2020s.
 
 ---
 
 ## Caveats
 
-- Small sample sizes pre-1970s (2–9 movies/decade) make those rows noisy.
-- The 2020s sample only covers cached entries up to ~2024–25; the decade is incomplete.
-- Severities are Gemini-generated, not human-coded — the numbers reflect *model perception* of severity, which has known biases (e.g. it tends to under-report sexual content for older films).
+- Pre-1950s decades (1 to 6 films each) are too sparse to average and are excluded from sections 2 to 4.
+- The 2020s sample only covers cached entries through roughly 2024 to 2025, so the decade is incomplete.
+- Severities are Gemini-generated, not human-coded, so the numbers reflect model perception of severity. The [data-quality audit](data-quality-audit.md) found and corrected a systematic batch of films the model had scored as all-zero; residual label noise is still possible.
 
 ---
 
 ## Reproducing this analysis
 
-The numbers above were generated by joining `movies.year` to the JSON in `content_warnings.warnings_json`. A representative query (SQLite, using `json_extract`):
+The numbers were generated by joining `movies.year` to the JSON in `content_warnings.warnings_json`. A representative query (SQLite, using `json_extract`):
 
 ```sql
 SELECT
   (CAST(substr(m.year, 1, 3) AS INTEGER) * 10) || 's' AS decade,
-  AVG(json_extract(c.warnings_json, '$.spoiler_free.violence_gore.severity'))     AS violence_gore,
-  AVG(json_extract(c.warnings_json, '$.spoiler_free.self_harm_suicide.severity')) AS self_harm_suicide,
-  AVG(json_extract(c.warnings_json, '$.spoiler_free.flashing_lights.severity'))   AS flashing_lights
+  COUNT(*)                                                                       AS films,
+  AVG(json_extract(c.warnings_json, '$.spoiler_free.violence_gore.severity'))    AS violence_gore,
+  AVG(json_extract(c.warnings_json, '$.spoiler_free.flashing_lights.severity'))  AS flashing_lights
   -- ... one AVG per category
 FROM movies m
 JOIN content_warnings c USING (tmdb_id)
 WHERE m.year GLOB '[0-9][0-9][0-9][0-9]'
 GROUP BY decade
+HAVING films >= 10
 ORDER BY decade;
 ```
 
-The full per-category query lives in the team analysis notebook. Counts in §1 come from a simple `GROUP BY decade` over `movies` filtered to films that have an entry in `content_warnings`.
+Counts in section 1 come from the same `GROUP BY decade` without the `HAVING` filter. The per-category table extends the pattern above with one `AVG(json_extract(...))` per warning category.
